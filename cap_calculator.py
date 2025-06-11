@@ -105,7 +105,7 @@ if st.session_state.show_investor_inputs:
         amount = st.number_input(
             "Investment Amount", min_value=0, key="investor_amount"
         )
-        holding_percentage = round((amount / post_money_valuation) * 100, 1)
+        holding_percentage = round(((amount / post_money_valuation) * 100) if post_money_valuation>0 else 0, 1)
         submitted = st.form_submit_button("Submit")
         if submitted and name and amount >= 0:
             st.session_state.investors.append(
@@ -155,7 +155,7 @@ ESOP_percentage = st.number_input(
     "How much percentage of ESOP you want after first round of investment?", min_value=0
 )
 percentage_of_founders_shares = 100 - (ESOP_percentage + total_investor_percentage)
-total_shares = round((total_founders_shares * 100) / percentage_of_founders_shares)
+total_shares = round(((total_founders_shares * 100) / percentage_of_founders_shares) if percentage_of_founders_shares>0 else 0)
 esop_shares = round(total_shares * ESOP_percentage / 100 if ESOP_percentage > 0 else 0)
 
 pre_money_valuation = post_money_valuation - total_invested_amount
@@ -169,12 +169,12 @@ total_actual_amount = 0
 total_investors_shares = 0
 
 for f in st.session_state.investors:
-    f.shares = round(f.invested_amount / share_price)
+    f.shares = round((f.invested_amount / share_price) if share_price>0 else 0)
     f.actual_amount = f.shares * share_price
     total_actual_amount += f.actual_amount
     total_investors_shares += f.shares
 for f in st.session_state.founders:
-    f.final_holding = round((f.shares / total_shares) * 100, 1)
+    f.final_holding = round(((f.shares / total_shares) * 100) if total_shares>0 else 0, 1)
 
 df2 = pd.DataFrame(
     {
